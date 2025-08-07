@@ -470,6 +470,217 @@ body {
     background-color: #95a5a6;
 }
 
+/* Add these new styles to your existing CSS */
+
+.qty-input {
+    width: 50px;
+    height: 32px;
+    border: 2px solid transparent;
+    background: transparent;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    color: transparent;
+}
+
+.item:hover .qty-input,
+.qty-input:focus,
+.qty-input.has-quantity {
+    border-color: #dee2e6;
+    background-color: white;
+    color: #2c3e50;
+}
+
+.qty-input:focus {
+    border-color: #27ae60;
+    outline: none;
+}
+
+.item-left {
+    display: flex;
+    align-items: center;
+    flex: 1;
+}
+
+.item-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    background-color: #e74c3c;
+    color: white;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 2px 6px;
+    margin-left: 8px;
+    animation: badgeAppear 0.3s ease;
+}
+
+@keyframes badgeAppear {
+    0% { transform: scale(0); }
+    100% { transform: scale(1); }
+}
+
+.badge.updated {
+    animation: badgeUpdate 0.4s ease;
+}
+
+@keyframes badgeUpdate {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); background-color: #c0392b; }
+    100% { transform: scale(1); }
+}
+
+.remove-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+.remove-popup-overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.remove-popup {
+    background: white;
+    border-radius: 8px;
+    padding: 25px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    min-width: 300px;
+    transform: scale(0.9);
+    transition: transform 0.2s ease;
+}
+
+.remove-popup-overlay.show .remove-popup {
+    transform: scale(1);
+}
+
+.remove-popup-qty:focus {
+    border-color: #e74c3c;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.2); /* Add visual feedback */
+}
+
+.remove-popup-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.remove-popup-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    justify-content: center;
+}
+
+.remove-popup-controls label {
+    font-weight: 500;
+    color: #495057;
+}
+
+.remove-popup-qty {
+    width: 80px;
+    height: 36px;
+    border: 2px solid #dee2e6;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.remove-popup-qty:focus {
+    border-color: #e74c3c;
+    outline: none;
+}
+
+.remove-popup-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.remove-popup-btn {
+    padding: 10px 20px;
+    border: 2px solid;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.remove-popup-btn.cancel {
+    background-color: #6c757d;
+    color: white;
+    border-color: #6c757d;
+}
+
+.remove-popup-btn.cancel:hover {
+    background-color: #5a6268;
+    border-color: #5a6268;
+}
+
+.remove-popup-btn.remove {
+    background-color: #e74c3c;
+    color: white;
+    border-color: #e74c3c;
+}
+
+.remove-popup-btn.remove:hover {
+    background-color: #c0392b;
+    border-color: #c0392b;
+}
+
+.remove-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.item-dropdown-arrow {
+    margin-left: 8px;
+    font-size: 12px;
+    color: #6c757d;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    user-select: none;
+}
+
+.item-dropdown-arrow:hover {
+    color: #495057;
+}
+
+.qty-display {
+    color: #e74c3c;
+    font-weight: 700;
+    margin-left: 8px;
+}
+
 @media print {
     .top-controls {
         display: none !important;

@@ -55,6 +55,22 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <!-- Remove Popup -->
+    <div id="removePopupOverlay" class="remove-popup-overlay" onclick="hideRemovePopup(event)">
+        <div class="remove-popup" onclick="event.stopPropagation()">
+            <div class="remove-popup-title">Remove Items</div>
+            <div class="remove-popup-controls">
+                <label>Remove quantity:</label>
+                <input type="number" id="removeQtyInput" class="remove-popup-qty" value="1" min="1" onkeydown="handleRemoveInputKeydown(event)">
+            </div>
+            <div class="remove-popup-buttons">
+                <button class="remove-popup-btn cancel" onclick="hideRemovePopup()">Cancel</button>
+                <button class="remove-popup-btn remove" onclick="confirmRemove()">Remove</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="ui-manager.js"></script>
+    <script src="data-manager.js"></script>
 </body>
 </html>
