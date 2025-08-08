@@ -476,7 +476,7 @@ body {
     width: 50px;
     height: -webkit-fill-available; /* This will make it match the button height */
     height: fill-available;
-    min-height: 28px; /* Fallback for browsers that don't support fill-available */
+    min-height: 24px; /* Fallback for browsers that don't support fill-available */
     border: 2px solid transparent;
     background: transparent;
     border-radius: 4px;
