@@ -683,6 +683,10 @@ body {
     margin-left: 8px;
 }
 
+.active{
+    border: 1px solid black;
+}
+
 @media print {
     .top-controls {
         display: none !important;
