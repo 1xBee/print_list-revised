@@ -12,8 +12,12 @@ document.addEventListener('DOMContentLoaded', function() {
 // Setup keyboard event listener
 function setupKeyboardListener() {
     document.addEventListener('keydown', function(event) {
-        // make sure to not fire on input typing
+        // Make sure to not fire on input typing
         if(event.target.tagName === 'INPUT') return;
+        
+        // Check if no control key is pressed
+        if(event.ctrlKey || event.altKey || event.metaKey) return;
+        
         // Check if pressed key is a letter A-Z
         const key = event.key.toUpperCase();
         if (key >= 'A' && key <= 'Z') {
