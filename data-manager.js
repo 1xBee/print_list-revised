@@ -159,7 +159,7 @@ function renderCollections() {
                         ${currentQty > 0 ? `<span class="badge" id="badge-${safeItemKey}">${currentQty}</span>` : ''}
                     </div>
                     <div class="item-controls">
-                        <input type="number" class="qty-input" value="1" min="1" data-item="${safeItemKey}" onchange="updateQuantityInputVisibility()" onclick="event.stopPropagation()">
+                        <input type="number" class="qty-input" value="1" min="1" data-item="${safeItemKey}" onchange="updateQuantityInputVisibility()" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){addItem('${safeItemKey}'); event.preventDefault();}">
                         <button class="add-btn" onclick="addItem('${safeItemKey}'); event.stopPropagation()">Add</button>
                     </div>
                 </div>
