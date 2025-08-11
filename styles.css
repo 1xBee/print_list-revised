@@ -687,6 +687,17 @@ body {
     outline: 1px solid black;
 }
 
+.data-link {
+    display: inline-block;
+    transition: all 0.2s ease;
+    margin-left: 15px;
+    color: #007bff;
+}
+
+.data-link:hover {
+    color: rgb(0, 53, 255);
+}
+
 @media print {
     .top-controls {
         display: none !important;
