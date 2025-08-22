@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="favicon-K.png">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="src/favicon-K.png">
+    <link rel="stylesheet" href="src/styles.css">
     <title>Inventory Box Manager</title>
 </head>
 <body>
@@ -19,7 +19,7 @@
             <h3>Load CSV File</h3>
             <input type="file" id="csvFile" accept=".csv" />
             <button class="reload-btn" id="reloadBtn" onclick="reloadLastFile()" disabled>Reload Last File</button>
-            <a href="Data.html" class="data-link" target="_blank">Access Data File</a>
+            <a href="src/Data.html" class="data-link" target="_blank">Access Data File</a>
             <p>Select a CSV file with columns: Collection, Item, ID, Box Count, Box Description</p>
             <div id="fileStatus" class="file-status" style="display: none;"></div>
         </div>
@@ -71,9 +71,9 @@
         </div>
     </div>
 
-    <script src="ui-manager.js"></script>
-    <script src="data-manager.js"></script>
-    <script src="alphabet_navigator.js"></script>
+    <script src="src/ui-manager.js"></script>
+    <script src="src/data-manager.js"></script>
+    <script src="srcalphabet_navigator.js"></script>
     <!--from Vercel, for Web Analytics-->
     <script>
       window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
