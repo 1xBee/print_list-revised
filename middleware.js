@@ -1,33 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server.js';
+import cookie_create from './lib/cookie-create.js'
 
 export default async function middleware(req) {
   const url = new URL(req.url);
 
-  // // do not fire on api calls
-  // if (url.pathname.startsWith('/api')) return NextResponse.next();
-
   if(url.pathname === '/' || url.pathname === '/index'){
 
     const request = new NextRequest(req);
-    //console.log(request.cookies.get('.id_visiter'));
+
+    // get the cookie if its found,
     let reqCookie = request.cookies.get('.id_visiter')
     reqCookie = reqCookie ? reqCookie.value : undefined;
-    //console.log(reqCookie);
-    
-    const response = NextResponse.next();
 
-    const result = await fetch(`${url.origin}/api/cookie-create`, {
-      method: 'POST', 
-      headers: {'content-type': 'application/json'}, body: JSON.stringify({reqCookie: reqCookie})    
-    })
-    
-    const data = await result.json()
+    // creaete an instense of the response,
+    const response = NextResponse.next();
+    // get the new cookie (and save it to db),
+    const data = await cookie_create(reqCookie);
     console.log(data);
 
+    // error,
     if(!data.succes) return errorRespons();
 
     const uuid = data.value
-    // console.log(uuid)
 
     response.cookies.set('.id_visiter', uuid, {
       'httpOnly': true,
@@ -37,7 +31,7 @@ export default async function middleware(req) {
     return response;
 
   }else{
-
+    // this pushes all other request as normal,
     return NextResponse.next();
 
   }
