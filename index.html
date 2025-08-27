@@ -8,20 +8,38 @@
     <title>Inventory Box Manager</title>
 </head>
 <body>
+    <!-- Authentication Modal -->
+    <div id="authModal" class="auth-modal-overlay">
+        <div class="auth-modal">
+            <div class="auth-modal-title">Database Access</div>
+            <div class="auth-modal-subtitle">Enter password to access inventory data</div>
+            <button class="auth-close-btn" onclick="hideAuthModal()" title="Close without accessing data">×</button>
+            <div class="auth-modal-controls">
+                <input type="password" id="passwordInput" class="auth-password-input" placeholder="Password" onkeydown="handlePasswordKeydown(event)">
+                <div id="authError" class="auth-error" style="display: none;"></div>
+            </div>
+            <div class="auth-modal-buttons">
+                <button class="auth-submit-btn" onclick="submitPassword()">Access Database</button>
+            </div>
+            <div class="auth-loading" id="authLoading" style="display: none;">
+                <div class="loading-spinner"></div>
+                <span>Connecting to database...</span>
+            </div>
+        </div>
+    </div>
+
     <div class="top-controls">
-        <button class="settings-btn" id="settingsBtn" onclick="toggleFileInput()">
+        <button class="settings-btn" id="settingsBtn" onclick="toggleControlsMenu()">
             <div class="line"></div>
             <div class="line"></div>
             <div class="line"></div>
         </button>
         
-        <div class="file-input" id="fileInputSection">
-            <h3>Load CSV File</h3>
-            <input type="file" id="csvFile" accept=".csv" />
-            <button class="reload-btn" id="reloadBtn" onclick="reloadLastFile()" disabled>Reload Last File</button>
-            <a href="src/Data.html" class="data-link" target="_blank">Access Data File</a>
-            <p>Select a CSV file with columns: Collection, Item, ID, Box Count, Box Description</p>
-            <div id="fileStatus" class="file-status" style="display: none;"></div>
+        <div class="controls-menu" id="controlsMenu">
+            <h3>Controls</h3>
+            <button class="refresh-btn" id="refreshBtn" onclick="refreshData()">
+                <span>Refresh Data</span>
+            </button>
         </div>
 
         <button class="print-btn" id="printBtn" onclick="printList()" disabled>Print List</button>
@@ -31,7 +49,7 @@
         <div class="left-panel" id="leftPanel">
             <h2 class="panel-title" style="margin-top: 20px;">Items Catalog</h2>
             <div id="collections-container">
-                <div class="no-data">Please load a CSV file to view items</div>
+                <div class="no-data">Loading inventory data...</div>
             </div>
         </div>
         
@@ -73,7 +91,7 @@
 
     <script src="src/ui-manager.js"></script>
     <script src="src/data-manager.js"></script>
-    <script src="srcalphabet_navigator.js"></script>
+    <script src="src/alphabet_navigator.js"></script>
     <!--from Vercel, for Web Analytics-->
     <script>
       window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };

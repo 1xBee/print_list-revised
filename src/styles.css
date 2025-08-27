@@ -66,7 +66,7 @@ body {
     background-color: #f8f9fa;
 }
 
-.file-input {
+.controls-menu {
     padding: 15px 20px;
     border-bottom: 1px solid #dee2e6;
     text-align: center;
@@ -74,35 +74,32 @@ body {
     transition: all 0.3s ease;
     overflow: hidden;
     max-height: 200px;
+    min-height: 125px;
+    box-shadow: 0 0 10px #b6b0b0;
 }
 
-.file-input.hidden {
+.controls-menu.hidden {
     max-height: 0;
+    min-height: 0;
     padding: 0 20px;
     border: none;
     opacity: 0;
+    box-shadow: none;
 }
 
-.file-input h3 {
+.controls-menu h3 {
     margin-bottom: 15px;
     color: #495057;
     font-weight: 500;
 }
 
-.file-input input {
-    margin: 10px 0;
-    padding: 8px;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-}
-
-.file-input p {
+.controls-menu p {
     font-size: 14px;
     color: #6c757d;
     margin-top: 10px;
 }
 
-.reload-btn {
+.refresh-btn {
     padding: 8px 16px;
     background-color: #17a2b8;
     color: white;
@@ -111,32 +108,20 @@ body {
     cursor: pointer;
     font-size: 14px;
     font-weight: 600;
-    margin-left: 10px;
+    margin: 0 auto;
     transition: all 0.2s ease;
 }
 
-.reload-btn:hover {
+.refresh-btn:hover:not(:disabled) {
     background-color: #138496;
     border-color: #138496;
 }
 
-.reload-btn:disabled {
+.refresh-btn:disabled {
     background-color: #6c757d;
     border-color: #6c757d;
     cursor: not-allowed;
-}
-
-.file-status {
-    margin-top: 15px;
-    padding: 10px;
-    border-radius: 4px;
-    font-size: 14px;
-}
-
-.file-status.loaded {
-    background-color: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
+    opacity: 0.6;
 }
 
 .settings-btn {
@@ -172,10 +157,6 @@ body {
     transition: all 0.2s ease;
 }
 
-.settings-btn.visible {
-    display: flex;
-}
-
 .print-btn {
     position: fixed;
     top: 10px;
@@ -189,6 +170,7 @@ body {
     z-index: 1000;
     font-weight: 600;
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    transition: all 0.2s ease;
 }
 
 .print-btn:hover:not(:disabled) {
@@ -201,6 +183,171 @@ body {
     border-color: #6c757d;
     cursor: not-allowed;
     opacity: 0.6;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.print-btn {
+    padding: 12px 24px;
+    background-color: #34495e;
+    color: white;
+    border: 2px solid #34495e;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    transition: all 0.2s ease;
+}
+
+.print-btn:hover:not(:disabled) {
+    background-color: #2c3e50;
+    border-color: #2c3e50;
+}
+
+.print-btn:disabled {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* Authentication Modal Styles */
+.auth-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    z-index: 3000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(5px);
+    transition: opacity 0.3s ease;
+}
+
+.auth-modal-overlay.fade-out {
+    opacity: 0;
+}
+
+.auth-modal {
+    background: white;
+    border-radius: 12px;
+    padding: 40px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    min-width: 400px;
+    text-align: center;
+    transform: scale(1);
+    transition: transform 0.2s ease;
+}
+
+.auth-modal-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+.auth-modal-subtitle {
+    font-size: 16px;
+    color: #7f8c8d;
+    margin-bottom: 30px;
+}
+
+.auth-close-btn {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    width: 30px;
+    height: 30px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #7f8c8d;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    padding-top: 2px;
+}
+
+.auth-close-btn:hover {
+    background-color: #ecf0f1;
+    color: #2c3e50;
+}
+
+.auth-modal-controls {
+    margin-bottom: 25px;
+}
+
+.auth-password-input {
+    width: 100%;
+    height: 50px;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    padding: 0 16px;
+    font-size: 16px;
+    transition: border-color 0.2s ease;
+    outline: none;
+}
+
+.auth-password-input:focus {
+    border-color: #34495e;
+    box-shadow: 0 0 0 3px rgba(52, 73, 94, 0.1);
+}
+
+.auth-error {
+    color: #e74c3c;
+    font-size: 14px;
+    margin-top: 10px;
+    padding: 8px;
+    background-color: #fdf2f2;
+    border: 1px solid #fecaca;
+    border-radius: 4px;
+}
+
+.auth-submit-btn {
+    width: 100%;
+    height: 50px;
+    background-color: #34495e;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.auth-submit-btn:hover:not(:disabled) {
+    background-color: #2c3e50;
+}
+
+.auth-submit-btn:disabled {
+    background-color: #95a5a6;
+    cursor: not-allowed;
+}
+
+.auth-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+    color: #7f8c8d;
+    font-size: 14px;
+}
+
+.loading-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #ecf0f1;
+    border-top: 2px solid #34495e;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
 }
 
 .collection {
@@ -433,6 +580,7 @@ body {
     background: transparent;
     font-size: 18px;
     font-weight: 600;
+    text-transform: uppercase;
     color: #2c3e50;
     padding: 8px 0;
     width: 100%;
@@ -470,13 +618,11 @@ body {
     background-color: #95a5a6;
 }
 
-/* Add these new styles to your existing CSS */
-
 .qty-input {
     width: 50px;
-    height: -webkit-fill-available; /* This will make it match the button height */
+    height: -webkit-fill-available;
     height: fill-available;
-    min-height: 24px; /* Fallback for browsers that don't support fill-available */
+    min-height: 24px;
     border: 2px solid transparent;
     background: transparent;
     border-radius: 4px;
@@ -578,12 +724,6 @@ body {
     transform: scale(1);
 }
 
-.remove-popup-qty:focus {
-    border-color: #e74c3c;
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.2); /* Add visual feedback */
-}
-
 .remove-popup-title {
     font-size: 18px;
     font-weight: 600;
@@ -613,11 +753,13 @@ body {
     text-align: center;
     font-size: 16px;
     font-weight: 600;
+    transition: border-color 0.2s ease;
+    outline: none;
 }
 
 .remove-popup-qty:focus {
     border-color: #e74c3c;
-    outline: none;
+    box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.2);
 }
 
 .remove-popup-buttons {
@@ -683,19 +825,8 @@ body {
     margin-left: 8px;
 }
 
-.active{
+.active {
     outline: 1px solid black;
-}
-
-.data-link {
-    display: inline-block;
-    transition: all 0.2s ease;
-    margin-left: 15px;
-    color: #007bff;
-}
-
-.data-link:hover {
-    color: rgb(0, 53, 255);
 }
 
 @media print {
@@ -710,7 +841,7 @@ body {
         overflow: visible !important;
     }
     
-    .left-panel, .file-input, .print-btn, .panel-title, .right-panel-header, .resize-handle, .title-input-container {
+    .left-panel, .panel-title, .right-panel-header, .resize-handle, .title-input-container {
         display: none !important;
     }
     
@@ -747,6 +878,7 @@ body {
         text-align: center;
         font-size: 24px;
         font-weight: bold;
+        text-transform: uppercase;
         color: #2c3e50;
         margin-bottom: 30px;
         padding-bottom: 10px;
@@ -759,9 +891,9 @@ body {
     }
     
     .selected-item {
-        margin-bottom: 3px !important; /* Reduce from 8px */
+        margin-bottom: 3px !important;
         border-color: black;
-        border-width: 1px 0 0 0 !important; /* Only top border */
+        border-width: 1px 0 0 0 !important;
     }
     
     .selected-item:first-child {
@@ -769,14 +901,14 @@ body {
     }
     
     .selected-item-header {
-        padding: 4px 8px !important; /* Reduce from 6px 12px */
+        padding: 4px 8px !important;
     }
     
     .box-list {
-        padding: 2px 20px !important; /* Reduce from 5px 15px */
+        padding: 2px 20px !important;
     }
     
     .box-row {
-        padding: 1px 0 !important; /* Reduce from 2px 0 */
+        padding: 1px 0 !important;
     }
 }
