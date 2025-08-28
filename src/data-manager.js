@@ -1,81 +1,154 @@
-// File handling functions
-function handleFileLoad(event) {
-    const file = event.target.files[0];
-    if (!file) return;
+// Global variables
+let inventoryData = [];
+let authPassword = null;
 
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const csvText = e.target.result;
-        
-        // Save file content and name
-        lastFileContent = csvText;
-        lastFileName = file.name;
-        sessionStorage.setItem('csvFileContent', csvText);
-        sessionStorage.setItem('csvFileName', file.name);
-        
-        parseCsv(csvText);
-        updateFileStatus(`File loaded: ${file.name}`, true);
-        document.getElementById('reloadBtn').disabled = false;
-    };
-    reader.readAsText(file);
-}
-
-function reloadLastFile() {
-    if (lastFileContent) {
-        parseCsv(lastFileContent);
-        updateFileStatus(`File reloaded: ${lastFileName}`, true);
-    }
-}
-
-// CSV parsing functions
-function parseCsv(csvText) {
-    const lines = csvText.split('\n').filter(line => line.trim());
-    if (lines.length < 2) {
-        alert('CSV file must have at least a header row and one data row');
+// Authentication functions
+function submitPassword() {
+    const passwordInput = document.getElementById('passwordInput');
+    const password = passwordInput.value.trim();
+    
+    if (!password) {
+        showAuthError('Please enter a password');
         return;
     }
-
-    // Skip header row and parse data
-    csvData = [];
-    for (let i = 1; i < lines.length; i++) {
-        const fields = parseCsvLine(lines[i]);
-        if (fields.length >= 5) {
-            csvData.push({
-                collection: fields[0].trim(),
-                item: fields[1].trim(),
-                id: fields[2].trim(),
-                boxCount: fields[3].trim(),
-                boxDescription: fields[4].trim()
-            });
-        }
-    }
-
-    renderCollections();
+    
+    authPassword = password;
+    fetchInventoryData();
 }
 
-function parseCsvLine(line) {
-    const result = [];
-    let current = '';
-    let inQuotes = false;
+function handlePasswordKeydown(event) {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        submitPassword();
+    }
+}
+
+function showAuthError(message) {
+    const errorDiv = document.getElementById('authError');
+    errorDiv.textContent = message;
+    errorDiv.style.display = 'block';
     
-    for (let i = 0; i < line.length; i++) {
-        const char = line[i];
+    // Clear error after 5 seconds
+    setTimeout(() => {
+        errorDiv.style.display = 'none';
+    }, 5000);
+}
+
+function showAuthLoading(show = true) {
+    const loadingDiv = document.getElementById('authLoading');
+    const submitBtn = document.querySelector('.auth-submit-btn');
+    const passwordInput = document.getElementById('passwordInput');
+    
+    if (show) {
+        loadingDiv.style.display = 'flex';
+        submitBtn.disabled = true;
+        passwordInput.disabled = true;
+    } else {
+        loadingDiv.style.display = 'none';
+        submitBtn.disabled = false;
+        passwordInput.disabled = false;
+    }
+}
+
+function hideAuthModal() {
+    const authModal = document.getElementById('authModal');
+    authModal.classList.add('fade-out');
+    
+    setTimeout(() => {
+        authModal.style.display = 'none';
+    }, 300);
+}
+
+// API functions
+async function fetchInventoryData() {
+    if (!authPassword) {
+        showAuthError('No password provided');
+        return;
+    }
+    
+    showAuthLoading(true);
+    
+    try {
+        // Encode password for Basic auth
+        const encodedPassword = btoa(authPassword);
+        const authHeader = `Basic ${encodedPassword}`;
         
-        if (char === '"') {
-            inQuotes = !inQuotes;
-        } else if (char === ',' && !inQuotes) {
-            result.push(current);
-            current = '';
+        const response = await fetch('/api/data', {
+            method: 'GET',
+            headers: {
+                'Authorization': authHeader,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (response.status === 200) {
+            const data = await response.json();
+            inventoryData = data;
+            hideAuthModal();
+            renderCollections();
+        } else if (response.status === 401) {
+            showAuthError('Invalid password. Please try again.');
+            document.getElementById('passwordInput').value = '';
+            document.getElementById('passwordInput').focus();
         } else {
-            current += char;
+            showAuthError(`Error loading data: Server returned ${response.status}`);
         }
+    } catch (error) {
+        console.error('API Error:', error);
+        showAuthError('Connection error. Please check your network and try again.');
+    } finally {
+        showAuthLoading(false);
     }
-    
-    result.push(current);
-    return result;
 }
 
-// Efficient badge management
+async function refreshData() {
+    // Check if user has authenticated
+    if (!authPassword) {
+        // Show auth modal again
+        const authModal = document.getElementById('authModal');
+        authModal.classList.remove('fade-out');
+        authModal.style.display = 'flex';
+        return;
+    }
+    
+    const refreshBtn = document.getElementById('refreshBtn');
+    const refreshText = refreshBtn.querySelector('span');
+
+    refreshText.textContent = 'Loading...';
+    refreshBtn.disabled = true;
+    
+    try {
+        const encodedPassword = btoa(authPassword);
+        const authHeader = `Basic ${encodedPassword}`;
+        
+        const response = await fetch('/api/data', {
+            method: 'GET',
+            headers: {
+                'Authorization': authHeader,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (response.status === 200) {
+            const data = await response.json();
+            inventoryData = data;
+            renderCollections();
+        } else if (response.status === 401) {
+            alert('Session expired. Please reload the page and re-authenticate.');
+            location.reload();
+        } else {
+            alert(`Error refreshing data: Server returned ${response.status}`);
+        }
+    } catch (error) {
+        console.error('Refresh Error:', error);
+        alert('Connection error. Please check your network and try again.');
+    } finally {
+        refreshText.textContent = 'Refresh Data';
+        refreshBtn.disabled = false;
+    }
+}
+
+// Badge management
 function updateSingleBadge(safeItemKey, quantity) {
     const badgeId = `badge-${safeItemKey}`;
     let badge = document.getElementById(badgeId);
@@ -103,17 +176,40 @@ function updateSingleBadge(safeItemKey, quantity) {
     }
 }
 
-// Rendering functions
+// Data transformation and rendering
+function transformDataForRendering() {
+    // Transform API JSON data to the format expected by rendering functions
+    const transformedData = [];
+    
+    inventoryData.forEach(collection => {
+        collection.items.forEach(item => {
+            item.boxes.forEach(box => {
+                transformedData.push({
+                    collection: collection.collection,
+                    item: item.item,
+                    id: item.id.toString(),
+                    boxCount: box.qty.toString(),
+                    boxDescription: box.description
+                });
+            });
+        });
+    });
+    
+    return transformedData;
+}
+
 function renderCollections() {
     const container = document.getElementById('collections-container');
     
-    if (csvData.length === 0) {
-        container.innerHTML = '<div class="no-data">No data found in CSV file</div>';
+    if (inventoryData.length === 0) {
+        container.innerHTML = '<div class="no-data">No inventory data available</div>';
         return;
     }
 
-    // Group data by collection and item, then sort
+    // Transform data and group by collection and item
+    const csvData = transformDataForRendering();
     const collections = {};
+    
     csvData.forEach(row => {
         if (!collections[row.collection]) {
             collections[row.collection] = {};
@@ -190,7 +286,10 @@ function renderSelectedItems() {
     removeAllBtn.style.display = 'block';
     updatePrintButton();
 
+    // Transform data for lookup
+    const csvData = transformDataForRendering();
     let html = '';
+    
     selectedItems.forEach((quantity, safeItemKey) => {
         try {
             const itemKey = atob(safeItemKey); // Decode base64
@@ -255,7 +354,7 @@ function addItem(safeItemKey) {
     }
     
     renderSelectedItems();
-    updateSingleBadge(safeItemKey, newQty); // Only update this specific badge
+    updateSingleBadge(safeItemKey, newQty);
     
     // Scroll to show the newly added item
     setTimeout(() => {
@@ -266,7 +365,7 @@ function addItem(safeItemKey) {
 function removeItem(safeItemKey) {
     selectedItems.delete(safeItemKey);
     renderSelectedItems();
-    updateSingleBadge(safeItemKey, 0); // Only update this specific badge
+    updateSingleBadge(safeItemKey, 0);
 }
 
 function removeAllItems() {
@@ -290,7 +389,6 @@ function scrollToNewItem() {
     if (selectedItemElements.length > 0) {
         const lastItem = selectedItemElements[selectedItemElements.length - 1];
         
-        // Smooth scroll to the new item
         lastItem.scrollIntoView({
             behavior: 'smooth',
             block: 'nearest',
@@ -301,7 +399,6 @@ function scrollToNewItem() {
 
 // Utility functions
 function generateSafeId(str) {
-    // Create a safe ID by removing special characters and using base64 encoding
     return 'id_' + btoa(str).replace(/[+/=]/g, '');
 }
 
@@ -314,10 +411,9 @@ function escapeHtml(text) {
 // Print functionality
 function printList() {
     if (selectedItems.size === 0) {
-        return; // Button should be disabled anyway
+        return;
     }
     
-    // Update print title before printing
     const titleInput = document.getElementById('printTitleInput');
     const printTitle = document.querySelector('.print-title');
     const titleValue = titleInput.value.trim() || 'ITEM LIST';
