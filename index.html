@@ -40,6 +40,10 @@
             <button class="refresh-btn" id="refreshBtn" onclick="refreshData()">
                 <span>Refresh Data</span>
             </button>
+            <a class="bookmarklet-btn" href="javascript:(function(){var urlPath=window.location.pathname;var inventoryUrl='https://print-list.vercel.app';var editDeliveryMatch=urlPath.match(/\/Deliveries\/Edit\/(\d+)/);var invoiceDeliveryMatch=urlPath.match(/\/Deliveries\/(\d+)\/Invoice/);var deliveryId=null;if(editDeliveryMatch){deliveryId=editDeliveryMatch[1];}else if(invoiceDeliveryMatch){deliveryId=invoiceDeliveryMatch[1];}if(!deliveryId){window.open(inventoryUrl,'_blank');return;}var button=document.createElement('div');button.style.cssText='position:fixed;top:10px;right:10px;background:#4CAF50;color:white;padding:10px;border-radius:5px;z-index:9999;font-family:Arial;cursor:pointer;';button.textContent='Loading delivery data...';document.body.appendChild(button);var apiUrl='/api/deliveries/'+deliveryId;fetch(apiUrl).then(function(response){if(!response.ok){throw new Error('HTTP '+response.status);}return response.json();}).then(function(data){if(!data.items||!Array.isArray(data.items)){throw new Error('No items found in response');}var filteredItems=data.items.filter(function(item){return item.qty&&item.qty>0&&item.path&&item.path.toLowerCase().startsWith('furniture');}).map(function(item){return{id:item.id,qty:item.qty};});if(filteredItems.length===0){button.textContent='No furniture items found in this delivery,';button.style.background='#ff9800';setTimeout(function(){button.remove();},3000);return;}var itemsParam=encodeURIComponent(JSON.stringify(filteredItems));var boxManagerUrl=inventoryUrl+'?items='+itemsParam;window.open(boxManagerUrl,'_blank');button.textContent='Sent '+filteredItems.length+' furniture items to inventory';button.style.background='#4CAF50';setTimeout(function(){button.remove();},3000);}).catch(function(error){console.error('Error:',error);button.textContent='Error: '+error.message;button.style.background='#f44336';setTimeout(function(){button.remove();},5000);});})();" title="Run delivery script">
+                print-list
+            </a>
+
         </div>
 
         <button class="print-btn" id="printBtn" onclick="printList()" disabled>Print List</button>
@@ -92,6 +96,7 @@
     <script src="src/ui-manager.js"></script>
     <script src="src/data-manager.js"></script>
     <script src="src/alphabet_navigator.js"></script>
+    <script src="src/query-items-handler.js"></script>
     <!--from Vercel, for Web Analytics-->
     <script>
       window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
