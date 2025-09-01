@@ -13,7 +13,7 @@ function submitPassword() {
     }
     
     authPassword = password;
-    fetchInventoryData();
+    fetchInventoryData(true);
 }
 
 function handlePasswordKeydown(event) {
@@ -60,7 +60,7 @@ function hideAuthModal() {
 }
 
 // API functions
-async function fetchInventoryData() {
+async function fetchInventoryData(includeDeliveryParams = false) {
     if (!authPassword) {
         showAuthError('No password provided');
         return;
@@ -72,8 +72,13 @@ async function fetchInventoryData() {
         // Encode password for Basic auth
         const encodedPassword = btoa(authPassword);
         const authHeader = `Basic ${encodedPassword}`;
-        
-        const response = await fetch('/api/data', {
+
+        let url = '/api/data';
+        if (includeDeliveryParams && window.deliveryParams) {
+            url += `?items=${encodeURIComponent(window.deliveryParams)}`;
+        }
+
+        const response = await fetch(url, {
             method: 'GET',
             headers: {
                 'Authorization': authHeader,
