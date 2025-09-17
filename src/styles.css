@@ -525,6 +525,9 @@ body {
     background-color: #ecf0f1;
     border-radius: 6px;
     border: 1px solid #bdc3c7;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
 }
 
 .panel-title {
