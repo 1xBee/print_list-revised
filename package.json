@@ -11,7 +11,7 @@
   "main": "",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "test.js"
   },
   "author": "leibish",
   "license": "ISC"

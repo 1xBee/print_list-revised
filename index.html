@@ -9,7 +9,7 @@
 </head>
 <body>
     <!-- Authentication Modal -->
-    <div id="authModal" class="auth-modal-overlay">
+    <div id="authModal" class="auth-modal-overlay" style="display: none;">
         <div class="auth-modal">
             <div class="auth-modal-title">Database Access</div>
             <div class="auth-modal-subtitle">Enter password to access inventory data</div>
@@ -53,7 +53,10 @@
         <div class="left-panel" id="leftPanel">
             <h2 class="panel-title" style="margin-top: 20px;">Items Catalog</h2>
             <div id="collections-container">
-                <div class="no-data">Loading inventory data...</div>
+                <div class="no-data" id="leftPanelStatus">
+                    <div class="loading-spinner"></div>
+                    <span>Loading inventory data...</span>
+                </div>
             </div>
         </div>
         
@@ -97,10 +100,21 @@
     <script src="src/data-manager.js"></script>
     <script src="src/alphabet_navigator.js"></script>
     <script src="src/query-items-handler.js"></script>
+    <script>
+    // Try to load data immediately when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        loadData();
+    });
+    </script>
     <!--from Vercel, for Web Analytics-->
     <script>
       window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
     </script>
     <script defer src="/_vercel/insights/script.js"></script>
+    <!--from Vercel, for speed insights-->
+    <script>
+        window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/speed-insights/script.js"></script>
 </body>
 </html>

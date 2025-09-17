@@ -1,6 +1,206 @@
 // Global variables
 let inventoryData = [];
 let authPassword = null;
+let lastRequestStatus = null; // null = no previous request, 200 = success, 401 = auth failed, other = error
+
+// Left panel status management
+function updateLeftPanelStatus(status, message = '') {
+    const statusElement = document.getElementById('leftPanelStatus');
+    const container = document.getElementById('collections-container');
+    
+    switch (status) {
+        case 'loading':
+            container.innerHTML = `
+                <div class="no-data" id="leftPanelStatus">
+                    <div class="loading-spinner"></div>
+                    <span>Loading inventory data...</span>
+                </div>
+            `;
+            break;
+        case 'auth-required':
+            container.innerHTML = `
+                <div class="no-data" id="leftPanelStatus">
+                    <span>Authentication required to view inventory</span>
+                </div>
+            `;
+            break;
+        case 'auth-failed':
+            container.innerHTML = `
+                <div class="no-data" id="leftPanelStatus">
+                    <span>Authentication failed. Please try again.</span>
+                </div>
+            `;
+            break;
+        case 'network-error':
+            container.innerHTML = `
+                <div class="no-data" id="leftPanelStatus">
+                    <span>Connection error. Please check your network.</span>
+                </div>
+            `;
+            break;
+        case 'no-data':
+            container.innerHTML = `
+                <div class="no-data" id="leftPanelStatus">
+                    <span>No inventory data available</span>
+                </div>
+            `;
+            break;
+    }
+}
+// Single API caller function
+async function makeAPICall(showLoading = false) {
+    if (showLoading) {
+        showAuthLoading(true);
+    }
+    
+    try {
+        // Build headers
+        const headers = {
+            'Content-Type': 'application/json'
+        };
+        
+        // Add auth if we have password
+        if (authPassword) {
+            const encodedPassword = btoa(authPassword);
+            headers['Authorization'] = `Basic ${encodedPassword}`;
+        }
+        
+        // Build URL with delivery params if available
+        let url = '/api/data';
+        if (window.deliveryParams) {
+            url += `?items=${encodeURIComponent(window.deliveryParams)}`;
+        }
+        
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: headers
+        });
+        
+        lastRequestStatus = response.status;
+        
+        if (response.status === 200) {
+            const data = await response.json();
+            // Only update inventory data on success - preserve selected items
+            inventoryData = data;
+            
+            // Hide auth modal if it's showing
+            if (document.getElementById('authModal').style.display === 'flex') {
+                hideAuthModal();
+            }
+            
+            renderCollections();
+            return true; // Success
+            
+        } else if (response.status === 401) {
+            // Authentication required or failed
+            handleAuthRequired();
+            return false; // Auth needed
+            
+        } else {
+            // Other error
+            handleAPIError(response.status);
+            return false; // Error
+        }
+        
+    } catch (error) {
+        console.error('API Error:', error);
+        handleNetworkError();
+        return false; // Network error
+        
+    } finally {
+        if (showLoading) {
+            showAuthLoading(false);
+        }
+    }
+}
+
+// Handle authentication required
+function handleAuthRequired() {
+    const authModal = document.getElementById('authModal');
+    
+    if (authPassword) {
+        // Password was provided but failed
+        showAuthError('Invalid password. Please try again.');
+        document.getElementById('passwordInput').value = '';
+        document.getElementById('passwordInput').focus();
+    } else {
+        // No password provided, show modal
+        if (authModal.style.display !== 'flex') {
+            authModal.classList.remove('fade-out');
+            authModal.style.display = 'flex';
+            setTimeout(() => {
+                document.getElementById('passwordInput').focus();
+            }, 100);
+        }
+    }
+}
+
+// Handle API errors (non-auth)
+function handleAPIError(status) {
+    if (lastRequestStatus === null) {
+        // First request failed with non-auth error - show modal with error
+        const authModal = document.getElementById('authModal');
+        if (authModal.style.display !== 'flex') {
+            authModal.classList.remove('fade-out');
+            authModal.style.display = 'flex';
+        }
+        showAuthError(`Error loading data: Server returned ${status}`);
+    } else {
+        // Refresh failed - show alert but don't clear data
+        alert(`Error refreshing data: Server returned ${status}`);
+    }
+}
+
+// Handle network errors
+function handleNetworkError() {
+    if (lastRequestStatus === null) {
+        // First request failed with network error - show modal with error
+        const authModal = document.getElementById('authModal');
+        if (authModal.style.display !== 'flex') {
+            authModal.classList.remove('fade-out');
+            authModal.style.display = 'flex';
+        }
+        showAuthError('Connection error. Please check your network and try again.');
+    } else {
+        // Refresh failed - show alert but don't clear data
+        alert('Connection error. Please check your network and try again.');
+    }
+}
+
+// Load data (called on page load)
+async function loadData() {
+    await makeAPICall();
+}
+
+// Refresh data (called by refresh button)
+async function refreshData() {
+    // Check if we need to show auth modal based on last request
+    if (lastRequestStatus === 401 && !authPassword) {
+        // Last request failed due to auth and we don't have password
+        const authModal = document.getElementById('authModal');
+        authModal.classList.remove('fade-out');
+        authModal.style.display = 'flex';
+        setTimeout(() => {
+            document.getElementById('passwordInput').focus();
+        }, 100);
+        return;
+    }
+    
+    // Show loading state on refresh button
+    const refreshBtn = document.getElementById('refreshBtn');
+    const refreshText = refreshBtn.querySelector('span');
+    const originalText = refreshText.textContent;
+
+    refreshText.textContent = 'Loading...';
+    refreshBtn.disabled = true;
+    
+    try {
+        await makeAPICall();
+    } finally {
+        refreshText.textContent = originalText;
+        refreshBtn.disabled = false;
+    }
+}
 
 // Authentication functions
 function submitPassword() {
@@ -13,7 +213,7 @@ function submitPassword() {
     }
     
     authPassword = password;
-    fetchInventoryData(true);
+    makeAPICall(true);
 }
 
 function handlePasswordKeydown(event) {
@@ -57,99 +257,10 @@ function hideAuthModal() {
     setTimeout(() => {
         authModal.style.display = 'none';
     }, 300);
-}
 
-// API functions
-async function fetchInventoryData(includeDeliveryParams = false) {
+    // Update left panel status based on authentication state
     if (!authPassword) {
-        showAuthError('No password provided');
-        return;
-    }
-    
-    showAuthLoading(true);
-    
-    try {
-        // Encode password for Basic auth
-        const encodedPassword = btoa(authPassword);
-        const authHeader = `Basic ${encodedPassword}`;
-
-        let url = '/api/data';
-        if (includeDeliveryParams && window.deliveryParams) {
-            url += `?items=${encodeURIComponent(window.deliveryParams)}`;
-        }
-
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: {
-                'Authorization': authHeader,
-                'Content-Type': 'application/json'
-            }
-        });
-        
-        if (response.status === 200) {
-            const data = await response.json();
-            inventoryData = data;
-            hideAuthModal();
-            renderCollections();
-        } else if (response.status === 401) {
-            showAuthError('Invalid password. Please try again.');
-            document.getElementById('passwordInput').value = '';
-            document.getElementById('passwordInput').focus();
-        } else {
-            showAuthError(`Error loading data: Server returned ${response.status}`);
-        }
-    } catch (error) {
-        console.error('API Error:', error);
-        showAuthError('Connection error. Please check your network and try again.');
-    } finally {
-        showAuthLoading(false);
-    }
-}
-
-async function refreshData() {
-    // Check if user has authenticated
-    if (!authPassword) {
-        // Show auth modal again
-        const authModal = document.getElementById('authModal');
-        authModal.classList.remove('fade-out');
-        authModal.style.display = 'flex';
-        return;
-    }
-    
-    const refreshBtn = document.getElementById('refreshBtn');
-    const refreshText = refreshBtn.querySelector('span');
-
-    refreshText.textContent = 'Loading...';
-    refreshBtn.disabled = true;
-    
-    try {
-        const encodedPassword = btoa(authPassword);
-        const authHeader = `Basic ${encodedPassword}`;
-        
-        const response = await fetch('/api/data', {
-            method: 'GET',
-            headers: {
-                'Authorization': authHeader,
-                'Content-Type': 'application/json'
-            }
-        });
-        
-        if (response.status === 200) {
-            const data = await response.json();
-            inventoryData = data;
-            renderCollections();
-        } else if (response.status === 401) {
-            alert('Session expired. Please reload the page and re-authenticate.');
-            location.reload();
-        } else {
-            alert(`Error refreshing data: Server returned ${response.status}`);
-        }
-    } catch (error) {
-        console.error('Refresh Error:', error);
-        alert('Connection error. Please check your network and try again.');
-    } finally {
-        refreshText.textContent = 'Refresh Data';
-        refreshBtn.disabled = false;
+        updateLeftPanelStatus('auth-required');
     }
 }
 
