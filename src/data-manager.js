@@ -89,6 +89,10 @@ async function makeAPICall(showLoading = false) {
             }
             
             renderCollections();
+            
+            // Process pending delivery items after successful data load
+            processPendingDeliveryItems();
+
             return true; // Success
             
         } else if (response.status === 401) {

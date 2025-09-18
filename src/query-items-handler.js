@@ -19,17 +19,11 @@ function checkForDeliveryItems() {
                 const newUrl = window.location.pathname;
                 window.history.replaceState({}, document.title, newUrl);
                 
-                // save the prams,
+                // save the params
                 window.deliveryParams = itemsParam;
                 
-                // Check if authenticated
-                if (authPassword && inventoryData && inventoryData.length > 0) {
-                    // Already authenticated, show dialog immediately
-                    showDeliveryItemsDialog(deliveryItems);
-                } else {
-                    // Store for later, wait for authentication
-                    pendingDeliveryItems = deliveryItems;
-                }
+                // Always store as pending items - will be processed after successful API response
+                pendingDeliveryItems = deliveryItems;
             }
         } catch (error) {
             console.error('Error parsing delivery items:', error);
@@ -37,19 +31,16 @@ function checkForDeliveryItems() {
     }
 }
 
-// Modify the hideAuthModal function to check for pending delivery items
-const originalHideAuthModal = hideAuthModal;
-hideAuthModal = function() {
-    originalHideAuthModal();
-    
-    // Check if there are pending delivery items after successful authentication
+// Function to check and process pending delivery items after successful data load
+function processPendingDeliveryItems() {
     if (pendingDeliveryItems && inventoryData && inventoryData.length > 0) {
+        // Small delay to ensure UI is fully rendered
         setTimeout(() => {
             showDeliveryItemsDialog(pendingDeliveryItems);
-            pendingDeliveryItems = null;
-        }, 500); // Small delay to ensure auth modal is fully hidden
+            pendingDeliveryItems = null; // Clear after processing
+        }, 500);
     }
-};
+}
 
 function showDeliveryItemsDialog(deliveryItems) {
     // Enrich delivery items with names and collections from inventory data
@@ -190,10 +181,6 @@ function findItemInfoById(itemId) {
 
 function processDeliveryItems(foundItems, modalOverlay) {
     // Wait for authentication and inventory data to be loaded
-    if (!authPassword) {
-        showDeliveryStatus('Please authenticate first to access inventory data', 'error');
-        return;
-    }
     
     if (!inventoryData || inventoryData.length === 0) {
         showDeliveryStatus('Inventory data not loaded. Please refresh data first.', 'error');
