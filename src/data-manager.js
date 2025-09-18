@@ -48,7 +48,9 @@ function updateLeftPanelStatus(status, message = '') {
     }
 }
 // Single API caller function
-async function makeAPICall(showLoading = false) {
+async function makeAPICall(options = {}) {
+    const {ignoreItemsPram, showLoading} = options;
+
     if (showLoading) {
         showAuthLoading(true);
     }
@@ -67,7 +69,7 @@ async function makeAPICall(showLoading = false) {
         
         // Build URL with delivery params if available
         let url = '/api/data';
-        if (window.deliveryParams) {
+        if (window.deliveryParams && !ignoreItemsPram) {
             url += `?items=${encodeURIComponent(window.deliveryParams)}`;
         }
         
@@ -89,7 +91,7 @@ async function makeAPICall(showLoading = false) {
             }
             
             renderCollections();
-            
+
             // Process pending delivery items after successful data load
             processPendingDeliveryItems();
 
@@ -199,7 +201,7 @@ async function refreshData() {
     refreshBtn.disabled = true;
     
     try {
-        await makeAPICall();
+        await makeAPICall({ignoreItemsPram: true});
     } finally {
         refreshText.textContent = originalText;
         refreshBtn.disabled = false;
@@ -217,7 +219,7 @@ function submitPassword() {
     }
     
     authPassword = password;
-    makeAPICall(true);
+    makeAPICall({showLoading: true});
 }
 
 function handlePasswordKeydown(event) {
