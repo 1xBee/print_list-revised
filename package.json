@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@supabase/supabase-js": "^2.57.4"
   },
   "name": "print_list",
   "description": "readme coming...",
