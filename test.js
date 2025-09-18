@@ -1,2 +1,4 @@
-import assert from 'assert';
-import test from 'node:test';
+test('This is an empty test...', () => {
+        console.log()
+    }
+)
