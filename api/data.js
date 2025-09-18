@@ -56,6 +56,8 @@ function respondUnauthorized(res, error){
 // 200 responder
 async function respondWithData(req, res, cookie){
 
+    // console.log(cookie);
+
     // first get the items query pram,
     let itemsQuery = req.query.items;
     // console.log(itemsQuery);
@@ -77,7 +79,11 @@ async function respondWithData(req, res, cookie){
     const dbRespond = await supabase.rpc('get_nested_inventory', {target_ids: target_ids});
     if(dbRespond.error) console.log(dbRespond);
     res.status(200);
-    if(cookie) res.setHeader('Set-Cookie', `__Host-sesion_=${cookie}; Max-Age=${30 * 24 * 60 * 60}; HttpOnly; Secure; Path=/`);
+    if(cookie){
+        const setCookie = `__Host-sesion_=${cookie}; Max-Age=${30 * 24 * 60 * 60}; HttpOnly; Secure; Path=/`;
+        // console.log(setCookie);
+        res.setHeader('Set-Cookie', setCookie);
+    }
     res.json(dbRespond.data);
     res.end();
 
