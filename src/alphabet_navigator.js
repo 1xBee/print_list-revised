@@ -20,25 +20,31 @@ function setupKeyboardListener() {
         
         // Check if pressed key is a letter A-Z
         const key = event.key.toUpperCase();
-        if (key >= 'A' && key <= 'Z') {
-            handleLetterPress(key);
+        if (key.match(/^[A-Z]{1}$/)) {
+            handleLetterPress(key, event.shiftKey);
         }
     });
 }
 
 // Handle letter key press
-function handleLetterPress(letter) {
+function handleLetterPress(letter, shift = false) {
+    
     // If same letter pressed, go to next occurrence
     if (currentLetter === letter) {
-        currentLetterIndex++;
+        !shift ? currentLetterIndex++ : currentLetterIndex--;
         if (currentLetterIndex >= collectionsForCurrentLetter.length) {
             currentLetterIndex = 0; // Cycle back to first
+        }else if (currentLetterIndex < 0) {// to last
+            currentLetterIndex = collectionsForCurrentLetter.length -1;
         }
     } else {
         // New letter pressed
         currentLetter = letter;
-        currentLetterIndex = 0;
         findCollectionsStartingWith(letter);
+        currentLetterIndex = 0; // Always reset the index
+        if (collectionsForCurrentLetter.length > 0) {
+            currentLetterIndex = !shift ? 0 : collectionsForCurrentLetter.length -1;
+        }
     }
     
     // Navigate to the collection

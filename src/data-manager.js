@@ -431,7 +431,7 @@ function renderSelectedItems() {
                             <span class="selected-item-name">${displayName} [${escapeHtml(collectionName)}]${qtyDisplay}</span>
                             <div class="remove-controls">
                                 <button class="remove-btn" onclick="removeItem('${safeItemKey}')">Remove</button>
-                                <span class="item-dropdown-arrow" onclick="showRemovePopup('${safeItemKey}')" title="Remove specific quantity">▼</span>
+                                <span class="item-options-symbol" onclick="showRemovePopup('${safeItemKey}')" title="Remove specific quantity">⋮</span>
                             </div>
                         </div>
                         <div class="box-list">

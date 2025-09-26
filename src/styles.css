@@ -809,16 +809,15 @@ body {
     gap: 10px;
 }
 
-.item-dropdown-arrow {
-    margin-left: 8px;
-    font-size: 12px;
-    color: #6c757d;
+.item-options-symbol {
+    margin: -4px 0 -2px 0;
+    font-size: 20px;
     cursor: pointer;
     transition: transform 0.2s ease;
     user-select: none;
 }
 
-.item-dropdown-arrow:hover {
+.item-options-symbol:hover {
     color: #495057;
 }
 
@@ -913,16 +912,19 @@ body {
     
     .selected-item {
         margin-bottom: 3px !important;
-        border-color: black;
-        border-width: 1px 0 0 0 !important;
     }
-    
-    .selected-item:first-child {
-        border-top: none !important;
-    }
-    
+
     .selected-item-header {
         padding: 4px 8px !important;
+        border: none;
+    }
+    
+    .selected-item-name {
+        font-size: 14px;
+    }
+    
+    .item-options-symbol{
+        display: none;
     }
     
     .box-list {
